@@ -1,0 +1,17 @@
+from fastapi import WebSocket
+
+connected_clients = []
+
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    connected_clients.append(websocket)
+
+    try:
+        while True:
+            await websocket.receive_text()
+    except:
+        connected_clients.remove(websocket)
+
+async def broadcast(message: str):
+    for client in connected_clients:
+        await client.send_text(message)
