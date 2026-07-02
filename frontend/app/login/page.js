@@ -10,7 +10,7 @@ export default function Login() {
 
   const login = async () => {
     const res = await fetch(
-      `http://127.0.0.1:8000/login?username=${username}&password=${password}`,
+      `https://fastapi-order-management-system-3.onrender.com/login?username=${username}&password=${password}`,
       {
         method: "POST",
       }
