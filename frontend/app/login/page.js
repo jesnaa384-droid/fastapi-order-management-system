@@ -10,11 +10,11 @@ export default function Login() {
 
   const login = async () => {
     const res = await fetch(
-      `https://fastapi-order-management-system-3.onrender.com/login?username=${username}&password=${password}`,
-      {
-        method: "POST",
-      }
-    );
+  `https://fastapi-order-management-system-1.onrender.com/login?username=${username}&password=${password}`,
+  {
+    method: "POST",
+  }
+);
 
     if (res.ok) {
       const data = await res.json();
