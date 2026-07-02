@@ -14,7 +14,7 @@ export default function Home() {
   const router = useRouter();
 
   const fetchOrders = async () => {
-    const res = await fetch("https://fastapi-order-management-system-3.onrender.com/orders")
+    const res = await fetch("https://fastapi-order-management-system-1.onrender.com/orders")
     const data = await res.json();
     setOrders(data);
   };
@@ -28,7 +28,7 @@ useEffect(() => {
   useEffect(() => {
     fetchOrders();
 
-    socket.current = new WebSocket("ws://127.0.0.1:8000/ws");
+    socket.current = new WebSocket("wss://fastapi-order-management-system-1.onrender.com/ws");
 
   socket.current.onmessage = () => {
     fetchOrders();
@@ -41,7 +41,7 @@ useEffect(() => {
 
 
   const addOrder = async () => {
-    await fetch("http://127.0.0.1:8000/orders", {
+    await fetch(`https://fastapi-order-management-system-1.onrender.com/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +58,7 @@ useEffect(() => {
   };
 
   const deleteOrder = async (id) => {
-    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+    await fetch(`https://fastapi-order-management-system-1.onrender.com/orders/${id}`, {
       method: "DELETE",
     });
 
@@ -66,7 +66,7 @@ useEffect(() => {
   };
 
   const updateStatus = async (id, status) => {
-    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+    await fetch(`https://fastapi-order-management-system-1.onrender.com/orders/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
