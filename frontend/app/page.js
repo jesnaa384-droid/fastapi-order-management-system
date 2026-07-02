@@ -14,7 +14,7 @@ export default function Home() {
   const router = useRouter();
 
   const fetchOrders = async () => {
-    const res = await fetch("http://127.0.0.1:8000/orders");
+    const res = await fetch("https://fastapi-order-management-system-3.onrender.com/orders")
     const data = await res.json();
     setOrders(data);
   };
