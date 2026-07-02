@@ -6,12 +6,13 @@ from app.models.order import Order
 from app.schemas.order import OrderCreate
 from fastapi import APIRouter, Depends,HTTPException
 from app.logger import logger
-
+import requests
+from app.websocket import broadcast
 
 router = APIRouter()
 
 @router.post("/orders")
-def create_order(order: OrderCreate, db: Session = Depends(get_db)):
+async def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     new_order = Order(
         customer_name=order.customer_name,
         amount=order.amount,
@@ -21,6 +22,8 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
+    await broadcast("order_created")
+    
 
     return {
         "message": "Order created successfully",
@@ -28,10 +31,9 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     }
 
 @router.delete("/orders/{order_id}")
-def delete_order(
+async def delete_order(
     order_id: int,
-    db: Session = Depends(get_db),
-    user=Depends(verify_token)
+    db: Session = Depends(get_db)
 ):
     order = db.query(Order).filter(Order.id == order_id).first()
 
@@ -40,17 +42,38 @@ def delete_order(
 
     db.delete(order)
     db.commit()
+    await broadcast("order_deleted")
 
     return {"message": "Order deleted successfully"}
 
 @router.get("/orders")
 def get_orders(
-    db: Session = Depends(get_db),
-    user=Depends(verify_token)
+    db: Session = Depends(get_db)
 ):
-    return db.query(Order).all()
+    orders = db.query(Order).all()
 
+    try:
+        response = requests.get(
+            "https://open.er-api.com/v6/latest/INR",
+            timeout=5
+        )
+        rate = response.json()["rates"]["USD"]
+    except Exception:
+        rate = 0.012
 
+    result = []
+
+    for order in orders:
+        result.append({
+            "id": order.id,
+            "customer_name": order.customer_name,
+            "amount": order.amount,
+            "amount_usd": round(order.amount * rate, 2),
+            "status": order.status,
+            "created_at": order.created_at
+        })
+
+    return result
 @router.get("/orders/{order_id}")
 def get_order(order_id: int, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
@@ -62,7 +85,7 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
 from app.schemas.order import OrderUpdate
 
 @router.put("/orders/{order_id}")
-def update_order(
+async def update_order(
     order_id: int,
     order_update: OrderUpdate,
     db: Session = Depends(get_db)
@@ -76,6 +99,7 @@ def update_order(
 
     db.commit()
     db.refresh(order)
+    await broadcast("order_updated")
 
     return {
         "message": "Order updated successfully",
