@@ -23,6 +23,12 @@
 - JWT Login
 - Logging
 - WebSocket Support
+- 
+## demo login credentials
+
+username:admin
+password:admin123
+
 
 ## Run Backend
 
