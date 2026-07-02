@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [orders, setOrders] = useState([]);
@@ -10,13 +11,20 @@ export default function Home() {
   const [filterStatus, setFilterStatus] = useState("All");
 
   const socket = useRef(null);
+  const router = useRouter();
 
   const fetchOrders = async () => {
     const res = await fetch("http://127.0.0.1:8000/orders");
     const data = await res.json();
     setOrders(data);
   };
+useEffect(() => {
+  const token = localStorage.getItem("token");
 
+  if (!token) {
+    router.push("/login");
+  }
+}, [router]);
   useEffect(() => {
     fetchOrders();
 
